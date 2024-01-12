@@ -20,11 +20,18 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/mileusna/useragent"
 )
 
 // Version is provided at compile time
 var Version = "devel"
+
+var (
+	events *Events = &Events{}
+)
 
 type CollectorData struct {
 	Type      string `json:"type"`
@@ -59,6 +66,11 @@ func decodePayload(s string) (payload CollectorPayload, err error) {
 
 func main() {
 	fmt.Println("nyla version:", Version)
+
+	if err := events.Open(); err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/collect", collect)
 
 	fmt.Println("listening on :9876")
@@ -73,5 +85,24 @@ func collect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Print(err)
 	}
-	fmt.Println("site_id:", trk.SiteID)
+
+	ua := useragent.Parse(trk.Data.UserAgent)
+
+	for k, v := range r.Header {
+		fmt.Println(k, v)
+	}
+
+	ip, err := ipFromRequest([]string{"X-Forwarded-For", "X-Real-IP"}, r)
+	if err != nil {
+		fmt.Println("error getting IP:", err)
+	}
+
+	geoInfo, err := getGeoInfo(ip.String())
+	if err != nil {
+		fmt.Println("error getting geo info:", err)
+	}
+
+	if err := events.Add(trk, ua, geoInfo); err != nil {
+		fmt.Println(err)
+	}
 }

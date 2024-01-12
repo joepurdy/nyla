@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  db:
+    container_name: nyla-db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - seed_volume:/tmp/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+  geo-api:
+    container_name: nyla-geo-api
+    image: nyla-geo-api:latest
+    ports:
+      - "8080:8080"
+
+volumes:
+  seed_volume:
