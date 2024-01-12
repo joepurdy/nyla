@@ -1,0 +1,14 @@
+{
+  "name": "nyla",
+  "version": "0.0.1",
+  "description": "GDPR compliant privacy focused web analytics",
+  "scripts": {
+    "build": "rm -rf static/nyla* && esbuild --bundle --minify --global-name=_nyla --format=iife --outfile=static/nyla.js src/nyla.ts",
+    "start": "http-server"
+  },
+  "license": "LGPL-3.0-only",
+  "devDependencies": {
+    "esbuild": "^0.19.11",
+    "http-server": "^14.1.1"
+  }
+}

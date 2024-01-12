@@ -1,0 +1,5 @@
+# node deps
+node_modules
+
+# compiled tracking script
+static/nyla.js
