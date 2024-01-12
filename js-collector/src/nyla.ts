@@ -1,5 +1,5 @@
 /*
- * nyla
+ * nyla-collector - GDPR compliant privacy focused web analytics
  * Copyright (C) 2024 Joe Purdy
  * mailto:nyla AT purdy DOT dev
  *
@@ -60,7 +60,7 @@ class Collector {
 
   private collectRequest(payload: CollectPayload) {
     const s = JSON.stringify(payload);
-    const apiUrl = `http://localhost:9876/track?data=${btoa(s)}`;
+    const apiUrl = `http://localhost:9876/collect?data=${btoa(s)}`;
 
     const img = new Image();
     img.src = apiUrl;
