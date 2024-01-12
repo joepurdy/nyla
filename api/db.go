@@ -11,6 +11,7 @@ import (
 )
 
 type Event struct {
+	AnonID      string
 	SiteID      string
 	CreatedAt   int32
 	Type        string
@@ -44,10 +45,11 @@ func (e *Events) Open() error {
 	return nil
 }
 
-func (e *Events) Add(payload CollectorPayload, ua useragent.UserAgent, geo *GeoInfo) error {
+func (e *Events) Add(payload CollectorPayload, hash string, ua useragent.UserAgent, geo *GeoInfo) error {
 	q := `
 	INSERT INTO events
 	(
+		anon_id,
 		site_id, 
 		created_at, 
 		type, 
@@ -60,13 +62,14 @@ func (e *Events) Add(payload CollectorPayload, ua useragent.UserAgent, geo *GeoI
 		country, 
 		region
 	) VALUES (
-		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 	)
 	`
 
 	_, err := e.DB.Exec(
 		context.Background(),
 		q,
+		hash,
 		payload.SiteID,
 		nowToInt(),
 		payload.Data.Type,

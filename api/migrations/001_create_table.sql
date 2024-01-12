@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS events (
+  anon_id CHAR(64) NOT NULL,
   site_id VARCHAR NOT NULL,
   created_at INT NOT NULL,
   type VARCHAR NOT NULL,

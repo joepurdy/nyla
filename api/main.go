@@ -81,12 +81,12 @@ func collect(w http.ResponseWriter, r *http.Request) {
 	defer w.WriteHeader(http.StatusOK)
 
 	data := r.URL.Query().Get("data")
-	trk, err := decodePayload(data)
+	payload, err := decodePayload(data)
 	if err != nil {
 		fmt.Print(err)
 	}
 
-	ua := useragent.Parse(trk.Data.UserAgent)
+	ua := useragent.Parse(payload.Data.UserAgent)
 
 	for k, v := range r.Header {
 		fmt.Println(k, v)
@@ -102,7 +102,12 @@ func collect(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error getting geo info:", err)
 	}
 
-	if err := events.Add(trk, ua, geoInfo); err != nil {
+	hash, err := generatePrivateIDHash(ip.String(), trk.Data.UserAgent, trk.Data.Hostname, trk.SiteID)
+	if err != nil {
+		fmt.Println("error generating private ID hash:", err)
+	}
+
+	if err := events.Add(payload, hash, ua, geoInfo); err != nil {
 		fmt.Println(err)
 	}
 }

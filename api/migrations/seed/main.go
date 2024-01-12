@@ -1,6 +1,8 @@
 package main
 
 import (
+	cryptorand "crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"math/rand"
@@ -27,6 +29,42 @@ var (
 	OSNAME    = []string{"linux", "windows", "macos"}
 	COUNTRIES = []string{"c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"}
 )
+
+const (
+	collisionProbability  = 0.1 // 10% chance of collision
+	numPreGeneratedHashes = 100 // Number of unique pre-generated hashes
+)
+
+var preGeneratedHashes []string
+
+func init() {
+	// Generate a set of pre-defined hashes
+	preGeneratedHashes = make([]string, numPreGeneratedHashes)
+	for i := range preGeneratedHashes {
+		preGeneratedHashes[i] = generateNewMockHash()
+	}
+}
+
+func generateNewMockHash() string {
+	bytes := make([]byte, 32) // SHA256 hash is 32 bytes
+	_, err := cryptorand.Read(bytes)
+	if err != nil {
+		// Handle error here
+		fmt.Println(err)
+		return ""
+	}
+	return hex.EncodeToString(bytes)
+}
+
+func generateMockHash() string {
+	// Randomly decide whether to generate a new hash or use a pre-generated one
+	if rand.Float64() < collisionProbability {
+		// Return a pre-generated hash to simulate a collision
+		return preGeneratedHashes[rand.Intn(len(preGeneratedHashes))]
+	}
+	// Generate a new unique hash
+	return generateNewMockHash()
+}
 
 func main() {
 	genPages()
@@ -102,9 +140,12 @@ func genInsert() string {
 		is_touch = "false"
 	}
 
-	qry := "%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+	anonID := generateMockHash()
+
+	qry := "%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
 
 	return fmt.Sprintf(qry,
+		anonID,
 		SITEID[rand.Intn(len(SITEID))],
 		genCreatedAt(),
 		TYPES[rand.Intn(len(TYPES))],
